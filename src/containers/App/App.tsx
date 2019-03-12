@@ -1,11 +1,16 @@
-import React, { Component } from 'react';
-import styles from './App.module.css';
+import React, { Component } from "react";
+import { storeFactory } from "./../../services";
+import { Provider } from "react-redux";
+import Upload from "../Upload/Upload";
+
+let store = storeFactory({});
 
 class App extends Component {
   render() {
     return (
-      <div className={styles.App}>
-      </div>
+      <Provider store={store}>
+        <Upload />
+      </Provider>
     );
   }
 }

@@ -1,5 +1,8 @@
-.App {
+.app {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  justify-content: center;
   text-align: center;
-  background-color: red;
 }
 /*# sourceMappingURL=App.module.css.map */
