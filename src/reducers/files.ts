@@ -12,16 +12,32 @@ export default function files(
 ): IFilesState {
   switch (action.type) {
     case ActionTypes.UPLOAD_REQUEST:
-      console.log(action);
       return {
         files: [
           ...state.files,
           {
-            file: action.file,
-            filename: action.filename,
-            metadata: action.metadata
+            name: action.file.name,
+            size: action.file.size,
+            progress: 0,
+            type: action.file.type
           }
         ]
+      };
+
+    case ActionTypes.UPLOAD_SUCCESS:
+      return {
+        files: state.files.map(file => {
+          if (file.name !== action.file.name) {
+            // This isn't the item we care about - keep it as-is
+            return file;
+          }
+
+          // Otherwise, this is the one we want - return an updated value
+          return {
+            ...file,
+            progress: action.progress
+          };
+        })
       };
 
     default:

@@ -1,10 +1,11 @@
 import axios from "axios";
 import { AnyAction, Dispatch, MiddlewareAPI } from "redux";
+import { IAbort, IError, ILoad, IProgress } from "../common/types";
 export const UPLOAD_API = "UPLOAD_API";
 
-async function sendFile(filename: string, file: File, metadata: string) {
+async function sendFile(file: File) {
   const bodyFormData = new FormData();
-  bodyFormData.set("filename", name);
+  bodyFormData.set("filename", file.name);
   bodyFormData.append("file", file);
   return axios.post("http://localhost:3001/upload", bodyFormData, {
     headers: { "Content-Type": "multipart/form-data" }
@@ -21,24 +22,26 @@ export default (store: MiddlewareAPI) => (next: Dispatch) => (
     return next(action);
   }
 
-  let { filename, file, metadata, types } = api;
+  let { file, types } = api;
   const [requestType, successType, errorType] = types;
 
   next({
     type: requestType,
-    file: file,
-    filename: filename,
-    metadata: metadata
+    file: file
   });
 
-  return sendFile(filename, file, metadata).then(
-    response =>
+  return sendFile(file).then(
+    response => {
       next({
-        type: successType
-      }),
+        type: successType,
+        file: file,
+        progress: 100
+      });
+    },
     error =>
       next({
         type: errorType,
+        file: file,
         error: {
           type: error.error || error.type,
           message: error.message

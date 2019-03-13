@@ -1,8 +1,9 @@
 .app {
   display: flex;
-  height: 100vh;
   width: 100vw;
+  min-height: 100vh;
   justify-content: center;
-  text-align: center;
+  align-items: flex-start;
+  background-color: whitesmoke;
 }
 /*# sourceMappingURL=App.module.css.map */

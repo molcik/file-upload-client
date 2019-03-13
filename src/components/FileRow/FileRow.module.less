@@ -1,0 +1,106 @@
+.chip {
+  margin: 4px 12px;
+  display: flex;
+  -webkit-animation: fall 0.5s 0.125s linear both;
+  animation: fall 0.5s 0.125s linear both;
+}
+
+div.spinner {
+  margin-left: 6px;
+  margin-right: -6px;
+}
+
+.busy {
+  -webkit-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
+}
+
+.labelName {
+  margin: 0;
+  font-weight: bold;
+}
+
+.labelSize {
+  margin: 0;
+  width: 100px;
+  display: inline-block;
+}
+
+.labelStatus {
+  text-align: left;
+  position: absolute;
+  right: 40px;
+  top: 0px;
+}
+
+.label {
+  font-size: 10px;
+  display: inline-block;
+}
+
+.labelLeft {
+  .label();
+  margin-right: 96px;
+}
+
+.labelRight {
+  .label();
+}
+
+@keyframes spin {
+  0% {
+    -webkit-transform: rotateZ(0deg);
+    transform: rotateZ(0deg);
+  }
+  100% {
+    -webkit-transform: rotateZ(-360deg);
+    transform: rotateZ(-360deg);
+  }
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    -webkit-transform: translateX(-0.0625em);
+    transform: translateX(-0.0625em);
+  }
+  20%,
+  80% {
+    -webkit-transform: translateX(0.125em);
+    transform: translateX(0.125em);
+  }
+  30%,
+  50%,
+  70% {
+    -webkit-transform: translateX(-0.25em);
+    transform: translateX(-0.25em);
+  }
+  40%,
+  60% {
+    -webkit-transform: translateX(0.25em);
+    transform: translateX(0.25em);
+  }
+}
+
+@keyframes fall {
+  0% {
+    opacity: 0;
+    -webkit-transform: scale(0.5);
+    transform: scale(0.5);
+    -webkit-animation-timing-function: ease-out;
+    animation-timing-function: ease-out;
+  }
+  70% {
+    opacity: 1;
+    -webkit-transform: scale(1.1);
+    transform: scale(1.1);
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out;
+  }
+  100% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    -webkit-animation-timing-function: ease-out;
+    animation-timing-function: ease-out;
+  }
+}

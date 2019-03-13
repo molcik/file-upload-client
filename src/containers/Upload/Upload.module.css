@@ -1,6 +1,15 @@
 .drop {
   margin: 42px 12px;
-  width: 40vw;
-  min-width: 320px;
+  min-width: 400px;
+}
+.drop:focus {
+  outline: none;
+}
+.text {
+  text-align: center;
+}
+div.card {
+  border-radius: 20px;
+  box-shadow: none;
 }
 /*# sourceMappingURL=Upload.module.css.map */
