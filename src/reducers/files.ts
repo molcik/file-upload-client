@@ -40,6 +40,23 @@ export default function files(
         })
       };
 
+    case ActionTypes.UPLOAD_ERROR:
+      return {
+        files: state.files.map(file => {
+          if (file.name !== action.file.name) {
+            // This isn't the item we care about - keep it as-is
+            return file;
+          }
+
+          // Otherwise, this is the one we want - return an updated value
+          return {
+            ...file,
+            error: action.error,
+            progress: action.progress
+          };
+        })
+      };
+
     default:
       return state;
   }

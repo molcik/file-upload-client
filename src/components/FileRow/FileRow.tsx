@@ -32,7 +32,7 @@ const FileRow: FunctionComponent<IProps> = ({ file }: IProps) => {
 
   const getStatus = (file: any) => {
     if (file.error) {
-      return "error";
+      return `error: ${file.error.message}`;
     }
     if (file.progress === 100) {
       return "done";
@@ -67,7 +67,7 @@ const FileRow: FunctionComponent<IProps> = ({ file }: IProps) => {
     if (file.progress === 100) {
       return "primary";
     }
-    if (file.progress === -1) {
+    if (file.error) {
       return "secondary";
     }
   };
