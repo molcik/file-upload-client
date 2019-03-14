@@ -6,7 +6,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import styles from "./FileRow.module.css";
 import ErroIcon from "@material-ui/icons/Error";
 
-const FileRow: FunctionComponent<IProps> = ({ file }: IProps) => {
+const FileRow: FunctionComponent<IProps> = ({ file, cancelUpload }: IProps) => {
   const units = ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
 
   const formatBytes = (x: string) => {
@@ -32,15 +32,15 @@ const FileRow: FunctionComponent<IProps> = ({ file }: IProps) => {
 
   const getStatus = (file: any) => {
     if (file.error) {
-      return `error: ${file.error.message}`;
+      return `error: ${file.error}`;
     }
     if (file.progress === 100) {
       return "done";
     }
-    if (file.progress > 0) {
+    if (file.progress > -1) {
       return `uploading ${file.progress}%`;
     }
-    if (file.progress === 0) {
+    if (file.progress === -1) {
       return "processing...";
     }
   };
@@ -79,7 +79,7 @@ const FileRow: FunctionComponent<IProps> = ({ file }: IProps) => {
         color={getStatusColor(file)}
         classes={{ root: styles.chip }}
         label={renderLabel(file)}
-        onDelete={() => console.log("deleted")}
+        onDelete={() => cancelUpload(file)}
       />
     </div>
   );

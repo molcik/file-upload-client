@@ -1,5 +1,7 @@
 export const UPLOAD_REQUEST = "UPLOAD_REQUEST";
-export const UPLOAD_PROGRESS = "UPLOAD_PROGRESS";
-export const UPLOAD_ABORT = "UPLOAD_ABORT";
 export const UPLOAD_SUCCESS = "UPLOAD_SUCCESS";
 export const UPLOAD_ERROR = "UPLOAD_ERROR";
+
+export const ABORT_REQUEST = "ABORT_REQUEST";
+export const ABORT_SUCCESS = "ABORT_SUCCESS";
+export const ABORT_ERROR = "ABORT_ERROR";
