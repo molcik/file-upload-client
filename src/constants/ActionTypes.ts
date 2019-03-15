@@ -5,3 +5,5 @@ export const UPLOAD_ERROR = "UPLOAD_ERROR";
 export const ABORT_REQUEST = "ABORT_REQUEST";
 export const ABORT_SUCCESS = "ABORT_SUCCESS";
 export const ABORT_ERROR = "ABORT_ERROR";
+
+export const REMOVE_FILE = "REMOVE_FILE";

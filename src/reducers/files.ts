@@ -11,6 +11,7 @@ const createFile = (state: IFilesState, action: AnyAction) => {
     files: [
       ...state.files,
       {
+        id: action.id,
         name: action.file.name,
         size: action.file.size,
         progress: -1,
@@ -23,7 +24,7 @@ const createFile = (state: IFilesState, action: AnyAction) => {
 const setProgress = (state: IFilesState, action: AnyAction) => {
   return {
     files: state.files.map(file => {
-      if (file.name !== action.file.name) {
+      if (file.id !== action.id) {
         // This isn't the item we care about - keep it as-is
         return file;
       }
@@ -31,7 +32,8 @@ const setProgress = (state: IFilesState, action: AnyAction) => {
       // Otherwise, this is the one we want - return an updated value
       return {
         ...file,
-        progress: action.progress
+        progress: action.progress,
+        url: action.url
       };
     })
   };
@@ -40,7 +42,7 @@ const setProgress = (state: IFilesState, action: AnyAction) => {
 const setError = (state: IFilesState, action: AnyAction) => {
   return {
     files: state.files.map(file => {
-      if (file.name !== action.file.name) {
+      if (file.id !== action.id) {
         // This isn't the item we care about - keep it as-is
         return file;
       }
@@ -51,6 +53,12 @@ const setError = (state: IFilesState, action: AnyAction) => {
         progress: action.progress
       };
     })
+  };
+};
+
+const removeFile = (state: IFilesState, action: AnyAction) => {
+  return {
+    files: state.files.filter(file => file.id !== action.id)
   };
 };
 
@@ -73,6 +81,9 @@ export default function files(
 
     case ActionTypes.ABORT_ERROR:
       return setError(state, action);
+
+    case ActionTypes.REMOVE_FILE:
+      return removeFile(state, action);
 
     default:
       return state;

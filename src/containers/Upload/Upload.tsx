@@ -28,11 +28,7 @@ const Upload = ({ files, fileActions }: IProps) => {
               {files &&
                 files.files &&
                 files.files.map((file, index) => (
-                  <FileRow
-                    file={file}
-                    key={index}
-                    cancelUpload={fileActions.cancelUpload}
-                  />
+                  <FileRow file={file} key={index} fileActions={fileActions} />
                 ))}
             </CardContent>
           </Card>

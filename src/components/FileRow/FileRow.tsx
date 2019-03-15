@@ -1,22 +1,23 @@
-import React, { ElementType, FunctionComponent, useState } from "react";
+import React, { MouseEvent, FunctionComponent } from "react";
 import { IProps } from "./types";
 import Chip from "@material-ui/core/Chip";
 import DoneIcon from "@material-ui/icons/Done";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import styles from "./FileRow.module.css";
 import ErroIcon from "@material-ui/icons/Error";
+import { IFile } from "../../reducers/types";
 
-const FileRow: FunctionComponent<IProps> = ({ file, cancelUpload }: IProps) => {
+const FileRow: FunctionComponent<IProps> = ({ file, fileActions }: IProps) => {
   const units = ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
 
-  const formatBytes = (x: string) => {
+  const formatBytes = (x: number) => {
     let l = 0,
-      n = parseInt(x, 10) || 0;
+      n = x || 0;
     while (n >= 1024 && ++l) n = n / 1024;
     return n.toFixed(n < 10 && l > 0 ? 1 : 0) + " " + units[l];
   };
 
-  const renderLabel = (file: any) => {
+  const renderLabel = (file: IFile) => {
     return (
       <div>
         <span className={styles.labelLeft}>
@@ -30,9 +31,9 @@ const FileRow: FunctionComponent<IProps> = ({ file, cancelUpload }: IProps) => {
     );
   };
 
-  const getStatus = (file: any) => {
+  const getStatus = (file: IFile) => {
     if (file.error) {
-      return `error: ${file.error}`;
+      return `${file.error}`;
     }
     if (file.progress === 100) {
       return "done";
@@ -45,13 +46,14 @@ const FileRow: FunctionComponent<IProps> = ({ file, cancelUpload }: IProps) => {
     }
   };
 
-  const renderIcon = (file: any) => {
+  const renderIcon = (file: IFile) => {
     if (file.error) {
       return <ErroIcon />;
     }
     if (file.progress < 100) {
       return (
         <CircularProgress
+          color={"secondary"}
           classes={{ root: styles.spinner }}
           size={20}
           thickness={4}
@@ -63,7 +65,7 @@ const FileRow: FunctionComponent<IProps> = ({ file, cancelUpload }: IProps) => {
     }
   };
 
-  const getStatusColor = (file: any) => {
+  const getStatusColor = (file: IFile) => {
     if (file.progress === 100) {
       return "primary";
     }
@@ -72,14 +74,29 @@ const FileRow: FunctionComponent<IProps> = ({ file, cancelUpload }: IProps) => {
     }
   };
 
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    file.url && window.open(file.url);
+    event.stopPropagation();
+  };
+
+  const handleDelete = () => {
+    if (file.progress === 100 || file.error) {
+      fileActions.removeFile(file);
+    } else {
+      fileActions.cancelUpload(file);
+    }
+  };
+
   return (
     <div>
       <Chip
         icon={renderIcon(file)}
+        onClick={handleClick}
         color={getStatusColor(file)}
         classes={{ root: styles.chip }}
+        className={file.error && styles.error}
         label={renderLabel(file)}
-        onDelete={() => cancelUpload(file)}
+        onDelete={handleDelete}
       />
     </div>
   );

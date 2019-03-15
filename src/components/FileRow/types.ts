@@ -4,7 +4,7 @@ export interface IDispatchProps {}
 
 export interface IStateProps {
   file?: any;
-  cancelUpload: typeof cancelUpload;
+  fileActions: any;
 }
 
 export interface IProps extends IDispatchProps, IStateProps {}

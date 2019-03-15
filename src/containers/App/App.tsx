@@ -3,17 +3,21 @@ import { storeFactory } from "./../../services";
 import { Provider } from "react-redux";
 import Upload from "../Upload/Upload";
 import styles from "./App.module.css";
+import { MuiThemeProvider } from "@material-ui/core";
+import theme from "./theme";
 
-let store = storeFactory({});
+const store = storeFactory({});
 
 class App extends Component {
   render() {
     return (
-      <div className={styles.app}>
+      <MuiThemeProvider theme={theme}>
         <Provider store={store}>
-          <Upload />
+          <div className={styles.app}>
+            <Upload />
+          </div>
         </Provider>
-      </div>
+      </MuiThemeProvider>
     );
   }
 }

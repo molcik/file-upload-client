@@ -3,7 +3,8 @@ export interface IFilesState {
 }
 
 export interface IFile {
-  progress?: number;
+  id: number;
+  progress: number;
   name: string;
   size: number;
   type?: string;
