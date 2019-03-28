@@ -23,7 +23,7 @@ const Upload = ({ files, fileActions }: IProps) => {
             <CardContent>
               <input {...getInputProps()} />
               <p className={styles.text}>
-                Drag 'n' drop files here, or click to select
+                Drag 'n' drop files, or click to select.
               </p>
               {files &&
                 files.files &&

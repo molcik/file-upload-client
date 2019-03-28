@@ -17,6 +17,9 @@ div.spinner {
   -webkit-animation: spin 1s linear infinite;
   animation: spin 1s linear infinite;
 }
+.labelContainer {
+  display: flex;
+}
 .labelName {
   margin: 0;
   font-weight: bold;
@@ -24,26 +27,28 @@ div.spinner {
 .labelSize {
   margin: 0;
   width: 100px;
-  display: inline-block;
+  display: flex;
 }
 .labelStatus {
-  text-align: left;
-  position: absolute;
-  right: 32px;
-  top: 0px;
+  margin-left: 12px;
 }
 .label {
   font-size: 10px;
-  display: inline-block;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
 .labelLeft {
   font-size: 10px;
-  display: inline-block;
-  margin-right: 120px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
 .labelRight {
   font-size: 10px;
-  display: inline-block;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
 @keyframes spin {
   0% {

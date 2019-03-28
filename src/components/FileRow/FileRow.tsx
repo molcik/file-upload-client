@@ -19,7 +19,7 @@ const FileRow: FunctionComponent<IProps> = ({ file, fileActions }: IProps) => {
 
   const renderLabel = (file: IFile) => {
     return (
-      <div>
+      <div className={styles.labelContainer}>
         <span className={styles.labelLeft}>
           <p className={styles.labelName}>{file.name}</p>
           <p className={styles.labelSize}>{formatBytes(file.size)}</p>
