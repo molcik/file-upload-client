@@ -1,15 +1,15 @@
+import { MuiThemeProvider } from "@material-ui/core";
 import React, { Component } from "react";
-import { storeFactory } from "./../../services";
 import { Provider } from "react-redux";
 import Upload from "../Upload/Upload";
+import { storeFactory } from "./../../services";
 import styles from "./App.module.css";
-import { MuiThemeProvider } from "@material-ui/core";
 import theme from "./theme";
 
-const store = storeFactory({});
+const store = storeFactory();
 
 class App extends Component {
-  render() {
+  public render() {
     return (
       <MuiThemeProvider theme={theme}>
         <Provider store={store}>

@@ -1,6 +1,6 @@
 import { AnyAction } from "redux";
-import { IFile, IFilesState } from "./types";
 import { ActionTypes } from "../constants";
+import { IFile, IFilesState } from "./types";
 
 export const initialState: IFilesState = {
   files: []
@@ -13,8 +13,8 @@ const createFile = (state: IFilesState, action: AnyAction) => {
       {
         id: action.id,
         name: action.file.name,
-        size: action.file.size,
         progress: -1,
+        size: action.file.size,
         type: action.file.type
       }
     ]

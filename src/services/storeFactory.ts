@@ -1,20 +1,21 @@
-import { createStore, applyMiddleware } from "redux";
-import upload from "../middleware/upload";
-import thunk from "redux-thunk";
-import rootReducer from "../reducers";
-import { IFilesState } from "../reducers/types";
+import { applyMiddleware, createStore } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension";
+import thunk from "redux-thunk";
+import upload from "../middleware/upload";
+import rootReducer from "../reducers";
+import { IFile, IFilesState } from "../reducers/types";
 
 export interface IState {
-  files?: IFilesState;
+  files: IFilesState;
 }
 
 const middleware = () => [thunk, upload];
+const initialState: IState = { files: { files: [] } };
 
-const storeFactory = (initialState: IState = {}) =>
+const storeFactory = (state: IState = initialState) =>
   composeWithDevTools(applyMiddleware(...middleware()))(createStore)(
     rootReducer,
-    initialState
+    state
   );
 
 export default storeFactory;

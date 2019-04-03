@@ -21,10 +21,13 @@ export const koala42 = {
 const theme = createMuiTheme({
   palette: {
     primary: {
+      dark: koala42[700],
       light: koala42[300],
-      main: koala42[500],
-      dark: koala42[700]
+      main: koala42[500]
     }
+  },
+  typography: {
+    useNextVariants: true
   }
 });
 

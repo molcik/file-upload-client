@@ -4,6 +4,7 @@ export interface IFilesState {
 
 export interface IFile {
   id: number;
+  url?: string;
   progress: number;
   name: string;
   size: number;

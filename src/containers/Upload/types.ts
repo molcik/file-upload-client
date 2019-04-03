@@ -1,12 +1,12 @@
-import { IFilesState } from "../../reducers/types";
 import { fileActions } from "../../actions";
+import { IFilesState } from "../../reducers/types";
 
 export interface IDispatchProps {
-  fileActions: typeof fileActions;
+  actions: typeof fileActions;
 }
 
 export interface IStateProps {
-  files?: IFilesState;
+  files: IFilesState;
 }
 
 export interface IProps extends IDispatchProps, IStateProps {}

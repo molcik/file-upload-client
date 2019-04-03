@@ -1,19 +1,24 @@
-import React, { MouseEvent, FunctionComponent } from "react";
-import { IProps } from "./types";
 import Chip from "@material-ui/core/Chip";
-import DoneIcon from "@material-ui/icons/Done";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import styles from "./FileRow.module.css";
+import DoneIcon from "@material-ui/icons/Done";
 import ErroIcon from "@material-ui/icons/Error";
+import React, { FunctionComponent, MouseEvent } from "react";
 import { IFile } from "../../reducers/types";
+import styles from "./FileRow.module.css";
+import { IProps } from "./types";
 
-const FileRow: FunctionComponent<IProps> = ({ file, fileActions }: IProps) => {
+const FileRow: FunctionComponent<IProps> = ({
+  fileState,
+  fileActions
+}: IProps) => {
   const units = ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
 
   const formatBytes = (x: number) => {
-    let l = 0,
-      n = x || 0;
-    while (n >= 1024 && ++l) n = n / 1024;
+    let l = 0;
+    let n = x || 0;
+    while (n >= 1024 && ++l) {
+      n = n / 1024;
+    }
     return n.toFixed(n < 10 && l > 0 ? 1 : 0) + " " + units[l];
   };
 
@@ -75,27 +80,29 @@ const FileRow: FunctionComponent<IProps> = ({ file, fileActions }: IProps) => {
   };
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
-    file.url && window.open(file.url);
+    if (fileState.url) {
+      window.open(fileState.url);
+    }
     event.stopPropagation();
   };
 
   const handleDelete = () => {
-    if (file.progress === 100 || file.error) {
-      fileActions.removeFile(file);
+    if (fileState.progress === 100 || fileState.error) {
+      fileActions.removeFile(fileState);
     } else {
-      fileActions.cancelUpload(file);
+      fileActions.cancelUpload(fileState);
     }
   };
 
   return (
     <div>
       <Chip
-        icon={renderIcon(file)}
+        icon={renderIcon(fileState)}
         onClick={handleClick}
-        color={getStatusColor(file)}
+        color={getStatusColor(fileState)}
         classes={{ root: styles.chip }}
-        className={file.error && styles.error}
-        label={renderLabel(file)}
+        className={fileState.error && styles.error}
+        label={renderLabel(fileState)}
         onDelete={handleDelete}
       />
     </div>

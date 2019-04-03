@@ -1,10 +1,7 @@
-import { cancelUpload } from "../../actions/files";
+import { fileActions } from "../../actions";
+import { IFile } from "../../reducers/types";
 
-export interface IDispatchProps {}
-
-export interface IStateProps {
-  file?: any;
-  fileActions: any;
+export interface IProps {
+  fileState: IFile;
+  fileActions: typeof fileActions;
 }
-
-export interface IProps extends IDispatchProps, IStateProps {}
