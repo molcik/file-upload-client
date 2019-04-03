@@ -1,43 +1,38 @@
+import axios, { CancelTokenSource } from "axios";
 import { AnyAction, Dispatch, MiddlewareAPI } from "redux";
+import { ActionTypes } from "../constants";
+import crcWorker from "../services/crc.worker";
 import splitWorker from "../services/split.worker";
 import WebWorker from "../services/WebWorker";
-import axios, { CancelTokenSource } from "axios";
-import { ActionTypes } from "../constants";
+
 export const UPLOAD_API = "UPLOAD_API";
 
 const cancelTokens: { [id: number]: CancelTokenSource } = {};
+const fileCrc = new WebWorker(crcWorker) as any;
+const fileSplit = new WebWorker(splitWorker) as any;
 
 const getPercentage = (index: number, total: number) => {
   return Math.ceil(((index + 1) / total) * 100);
 };
 
 const checkFile = (file: File) => {
-  if (file.size > 5e8) throw new Error("file size exceeded (500MB)");
+  if (file.size > 5e8) {
+    throw new Error("file size exceeded (500MB)");
+  }
 };
 
-const processFile = (id: number, file: File, next: Dispatch, types: any[]) => {
-  let fileSplit = new WebWorker(splitWorker) as any;
-  fileSplit.postMessage(file);
-  fileSplit.addEventListener("message", (event: any) => {
-    next({
-      id: id,
-      type: types[1],
-      file: file,
-      progress: 0
-    });
-    processChunks(
-      id,
-      file,
-      event.data.chunks,
-      event.data.total,
-      0,
-      next,
-      types
-    );
-  });
+const processFile = async (
+  id: number,
+  file: File,
+  next: Dispatch,
+  types: any[]
+) => {
+  const data = await fileSplit.process(file);
+  next({ id, type: types[1], file, progress: 0 });
+  processChunks(id, file, data.chunks, data.total, 0, next, types);
 };
 
-const processChunks = (
+const processChunks = async (
   id: number,
   file: File,
   chunks: Blob[],
@@ -49,11 +44,11 @@ const processChunks = (
   sendFile(id, file, chunks[index], total, index).then(
     res => {
       next({
+        file,
+        id,
+        progress: getPercentage(index, total),
         type: types[1],
-        id: id,
-        file: file,
-        url: res.data.permanent || null,
-        progress: getPercentage(index, total)
+        url: res.data.permanent || null
       });
       if (index < total - 1 && !cancelTokens[id].token.reason) {
         index++;
@@ -61,19 +56,19 @@ const processChunks = (
       }
     },
     error => {
-      console.error(error);
-      next({ type: types[2], id: id, file: file, error: error.message });
+      next({ type: types[2], id, file, error: error.message });
     }
   );
 };
 
-const sendFile = (
+const sendFile = async (
   id: number,
   file: File,
   chunk: Blob,
   total: number,
   index: number
 ) => {
+  const md5 = await fileCrc.process(chunk);
   const bodyFormData = new FormData();
   const CancelToken = axios.CancelToken;
   const source = CancelToken.source();
@@ -81,12 +76,13 @@ const sendFile = (
 
   bodyFormData.set("filename", file.name);
   bodyFormData.set("id", `${id}`);
+  bodyFormData.set("md5", `${md5}`);
   bodyFormData.set("index", `${index}`);
   bodyFormData.set("total", `${total}`);
   bodyFormData.append("file", chunk);
   return axios.post("http://localhost:3001/upload", bodyFormData, {
-    headers: { "Content-Type": "multipart/form-data" },
-    cancelToken: source.token
+    cancelToken: source.token,
+    headers: { "Content-Type": "multipart/form-data" }
   });
 };
 
@@ -100,17 +96,13 @@ export default (store: MiddlewareAPI) => (next: Dispatch) => (
     return next(action);
   }
 
-  let { file, id, types } = api;
-  let [requestType, successType, errorType] = types;
+  const { file, id, types } = api;
+  const [requestType, successType, errorType] = types;
 
   try {
     switch (requestType) {
       case ActionTypes.UPLOAD_REQUEST:
-        next({
-          type: requestType,
-          id: id,
-          file: file
-        });
+        next({ file, id, type: requestType });
         checkFile(file);
         processFile(id, file, next, types);
         break;
@@ -118,7 +110,6 @@ export default (store: MiddlewareAPI) => (next: Dispatch) => (
         cancelTokens[id].cancel("canceled");
     }
   } catch (e) {
-    console.error(e);
-    next({ type: errorType, id: id, file: file, error: e.message });
+    next({ type: errorType, id, file, error: e.message });
   }
 };
