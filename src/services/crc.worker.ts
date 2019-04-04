@@ -1,17 +1,17 @@
 export default () => {
   importScripts(
-    "https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js" // TODO: using webpack import require eject, find out better way
+    "https://cdn.jsdelivr.net/npm/js-md5@0.7.3/src/md5.min.js" // TODO: using webpack import require eject, find out better way
   );
   self.addEventListener("message", e => {
     if (!e.data) {
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = res => {
       // @ts-ignore
-      const hash = CryptoJS.MD5(reader.result).toString(CryptoJS.enc.Hex);
+      const hash = md5(reader.result);
       postMessage(hash);
     };
-    reader.readAsBinaryString(e.data);
+    reader.readAsArrayBuffer(e.data);
   });
 };
