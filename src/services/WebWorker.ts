@@ -19,4 +19,8 @@ export default class WebWorker {
     });
     return result;
   }
+
+  public terminate(): void {
+    this.worker.terminate();
+  }
 }

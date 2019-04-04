@@ -1,18 +1,19 @@
-import axios, { CancelTokenSource } from "axios";
+import axios, { AxiosError, AxiosResponse, CancelTokenSource } from "axios";
 import { AnyAction, Dispatch, MiddlewareAPI } from "redux";
 import { ActionTypes } from "../constants";
 import crcWorker from "../services/crc.worker";
 import splitWorker from "../services/split.worker";
 import WebWorker from "../services/WebWorker";
+import { IProcessedFile } from "./types";
 
 export const UPLOAD_API = "UPLOAD_API";
 
-const cancelTokens: { [id: number]: CancelTokenSource } = {};
-const fileCrc = new WebWorker(crcWorker) as any;
-const fileSplit = new WebWorker(splitWorker) as any;
+const processedFiles: IProcessedFile[] = [];
 
-const getPercentage = (index: number, total: number) => {
-  return Math.ceil(((index + 1) / total) * 100);
+const getPercentage = (processedFile: IProcessedFile) => {
+  return Math.ceil(
+    ((processedFile.index + 1) / processedFile.totalChunks) * 100
+  );
 };
 
 const checkFile = (file: File) => {
@@ -21,67 +22,83 @@ const checkFile = (file: File) => {
   }
 };
 
+// split file to chunks and
 const processFile = async (
-  id: number,
-  file: File,
+  processedFile: IProcessedFile,
   next: Dispatch,
-  types: any[]
+  crcFile: WebWorker,
+  splitFile: WebWorker
 ) => {
-  const data = await fileSplit.process(file);
-  next({ id, type: types[1], file, progress: 0 });
-  processChunks(id, file, data.chunks, data.total, 0, next, types);
+  const data = await splitFile.process(processedFile.file);
+  splitFile.terminate();
+  processedFile.chunks = data.chunks;
+  processedFile.totalChunks = data.totalChunks;
+  processChunks(processedFile, next, crcFile);
 };
 
+// sending chunks recursively, also handles progress and errors
 const processChunks = async (
-  id: number,
-  file: File,
-  chunks: Blob[],
-  total: number,
-  index: number,
+  processedFile: IProcessedFile,
   next: Dispatch,
-  types: any[]
+  crcFile: WebWorker
 ) => {
-  sendFile(id, file, chunks[index], total, index).then(
-    res => {
-      next({
-        file,
-        id,
-        progress: getPercentage(index, total),
-        type: types[1],
-        url: res.data.permanent || null
-      });
-      if (index < total - 1 && !cancelTokens[id].token.reason) {
-        index++;
-        processChunks(id, file, chunks, total, index, next, types);
-      }
-    },
-    error => {
-      next({ type: types[2], id, file, error: error.message });
-    }
+  sendChunk(processedFile, crcFile).then(
+    res => handleResponse(res, processedFile, next, crcFile),
+    error => handleError(error, processedFile, next, crcFile)
   );
 };
 
-const sendFile = async (
-  id: number,
-  file: File,
-  chunk: Blob,
-  total: number,
-  index: number
+const handleResponse = (
+  res: AxiosResponse,
+  processedFile: IProcessedFile,
+  next: Dispatch,
+  crcFile: WebWorker
 ) => {
-  const md5 = await fileCrc.process(chunk);
-  const bodyFormData = new FormData();
-  const CancelToken = axios.CancelToken;
-  const source = CancelToken.source();
-  cancelTokens[id] = source;
+  next({
+    id: processedFile.id,
+    progress: getPercentage(processedFile),
+    type: processedFile.types[1],
+    url: res.data.permanent || null
+  });
+  if (
+    processedFile.index < processedFile.totalChunks - 1 &&
+    !processedFile.cancelToken.token.reason
+  ) {
+    processedFile.index++;
+    processChunks(processedFile, next, crcFile);
+  } else {
+    crcFile.terminate();
+  }
+};
 
-  bodyFormData.set("filename", file.name);
-  bodyFormData.set("id", `${id}`);
-  bodyFormData.set("md5", `${md5}`);
-  bodyFormData.set("index", `${index}`);
-  bodyFormData.set("total", `${total}`);
-  bodyFormData.append("file", chunk);
+const handleError = (
+  error: AxiosError,
+  processedFile: IProcessedFile,
+  next: Dispatch,
+  crcFile: WebWorker
+) => {
+  crcFile.terminate();
+  next({
+    error: error.message,
+    id: processedFile.id,
+    type: processedFile.types[2]
+  });
+};
+
+// handle sending, counting CRC and canceling of file chunk
+const sendChunk = async (processedFile: IProcessedFile, crcFile: WebWorker) => {
+  const bodyFormData = new FormData();
+  processedFile.md5 = await crcFile.process(
+    processedFile.chunks[processedFile.index]
+  );
+  bodyFormData.set("filename", processedFile.file.name);
+  bodyFormData.set("id", `${processedFile.id}`);
+  bodyFormData.set("md5", `${processedFile.md5}`);
+  bodyFormData.set("index", `${processedFile.index}`);
+  bodyFormData.set("total", `${processedFile.totalChunks}`);
+  bodyFormData.append("file", processedFile.chunks[processedFile.index]);
   return axios.post("http://localhost:3001/upload", bodyFormData, {
-    cancelToken: source.token,
+    cancelToken: processedFile.cancelToken.token,
     headers: { "Content-Type": "multipart/form-data" }
   });
 };
@@ -98,16 +115,33 @@ export default (store: MiddlewareAPI) => (next: Dispatch) => (
 
   const { file, id, types } = api;
   const [requestType, successType, errorType] = types;
+  const fileSplit = new WebWorker(splitWorker) as any; // every file has its own worker
+  const fileCrc = new WebWorker(crcWorker) as any; // every file has its own worker
+  const cancelToken = axios.CancelToken.source();
+  const processedFile = {
+    cancelToken,
+    chunks: [],
+    file,
+    id,
+    index: 0,
+    md5: "",
+    totalChunks: 0,
+    types
+  };
 
   try {
     switch (requestType) {
       case ActionTypes.UPLOAD_REQUEST:
         next({ file, id, type: requestType });
         checkFile(file);
-        processFile(id, file, next, types);
+        // split to chunks, upload and count CRC one by one
+        processFile(processedFile, next, fileCrc, fileSplit);
+        processedFiles.push(processedFile);
+        console.log("upload");
         break;
       case ActionTypes.ABORT_REQUEST:
-        cancelTokens[id].cancel("canceled");
+        const fileToCancel = processedFiles.find(item => item.id === id);
+        if (fileToCancel) fileToCancel.cancelToken.cancel("canceled");
     }
   } catch (e) {
     next({ type: errorType, id, file, error: e.message });

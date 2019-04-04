@@ -4,6 +4,8 @@ export default () => {
       return;
     }
 
+    console.log(e);
+
     const chunks: any[] = [];
     const blob = e.data;
 
@@ -21,6 +23,6 @@ export default () => {
       start = end;
       end = start + BYTES_PER_CHUNK;
     }
-    postMessage({ chunks, total: totalChunks });
+    postMessage({ chunks, totalChunks });
   });
 };
