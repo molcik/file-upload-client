@@ -1,8 +1,11 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
 
 In the project directory, you can run:
+
+### `npm install`
+
+First of all run this script to install all dependencies.
 
 ### `npm start`
 
@@ -11,6 +14,10 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.<br>
 You will also see any lint errors in the console.
+
+### `npm watch-less`
+
+Watch less files and compile them to css. When you work with it, it will create a css file at the same directory of less, and with the same name, so you import the css file in your jsx file is ok.
 
 ### `npm test`
 
