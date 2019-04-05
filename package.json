@@ -16,6 +16,7 @@
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-dropzone": "^10.0.0",
+    "react-less-watcher": "^1.1.4",
     "react-redux": "^6.0.1",
     "react-scripts": "2.1.8",
     "redux": "^4.0.1",
@@ -27,10 +28,11 @@
     "typescript": "3.3.3333"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "react-scripts start npm&npm run watch-less",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "watch-less": "react-less-watcher -d src"
   },
   "eslintConfig": {
     "extends": "react-app"

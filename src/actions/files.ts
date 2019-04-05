@@ -1,5 +1,4 @@
 import { ActionTypes } from "../constants";
-import { ABORT_ERROR, ABORT_SUCCESS } from "../constants/ActionTypes";
 import { UPLOAD_API } from "../middleware/upload";
 import { IFile } from "../reducers/types";
 
@@ -24,7 +23,11 @@ export const cancelUpload = (file: IFile) => {
     [UPLOAD_API]: {
       file,
       id: file.id,
-      types: [ActionTypes.ABORT_REQUEST, ABORT_SUCCESS, ABORT_ERROR]
+      types: [
+        ActionTypes.ABORT_REQUEST,
+        ActionTypes.ABORT_SUCCESS,
+        ActionTypes.ABORT_ERROR
+      ]
     }
   };
 };

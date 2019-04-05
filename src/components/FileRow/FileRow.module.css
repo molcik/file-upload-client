@@ -22,11 +22,16 @@ div.spinner {
 }
 .labelName {
   margin: 0;
+  width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-weight: bold;
 }
 .labelSize {
   margin: 0;
-  width: 100px;
+  width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   display: flex;
 }
 .labelStatus {
@@ -105,4 +110,3 @@ div.spinner {
     animation-timing-function: ease-out;
   }
 }
-/*# sourceMappingURL=FileRow.module.css.map */

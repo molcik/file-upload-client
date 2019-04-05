@@ -19,8 +19,8 @@ const Upload = ({ files, actions }: IProps) => {
   const renderFileRow = (rowFiles: IFile[]) => {
     return (
       rowFiles &&
-      rowFiles.map((file, index) => (
-        <FileRow fileState={file} key={index} fileActions={actions} />
+      rowFiles.map(file => (
+        <FileRow fileState={file} key={file.id} fileActions={actions} />
       ))
     );
   };
