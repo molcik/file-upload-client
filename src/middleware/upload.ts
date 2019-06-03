@@ -97,10 +97,14 @@ const sendChunk = async (processedFile: IProcessedFile, crcFile: WebWorker) => {
   bodyFormData.set("index", `${processedFile.index}`);
   bodyFormData.set("total", `${processedFile.totalChunks}`);
   bodyFormData.append("file", processedFile.chunks[processedFile.index]);
-  return axios.post("http://localhost:3001/upload", bodyFormData, {
-    cancelToken: processedFile.cancelToken.token,
-    headers: { "Content-Type": "multipart/form-data" }
-  });
+  return axios.post(
+    process.env.REACT_APP_ENDPOINT_UPLOAD || "localhost:3001/upload",
+    bodyFormData,
+    {
+      cancelToken: processedFile.cancelToken.token,
+      headers: { "Content-Type": "multipart/form-data" }
+    }
+  );
 };
 
 export default (store: MiddlewareAPI) => (next: Dispatch) => (
